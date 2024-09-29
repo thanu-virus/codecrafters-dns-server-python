@@ -16,7 +16,7 @@ def main():
             rflags=b"\x80\x00"
             qdcount=b"\x00\x01"
             header =rid+rflags+qdcount+ (b"\x00"*6)
-            question = b"\x0ccodecarfters\x02io\x00\x00\x01\x00\x01"
+            question = b"\x0ccodecrafters\x02io\x00\x00\x01\x00\x01"
             response=header+question
             udp_socket.sendto(response, source)
         except Exception as e:
