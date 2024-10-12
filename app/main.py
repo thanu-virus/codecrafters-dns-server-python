@@ -12,7 +12,6 @@ def main():
             # id = int.from_bytes(recvd_bytes[:2], "big")
             id = int.from_bytes(recvd_bytes[:2], "big")
             reply_message = Message.build_reply(
-                id=1234,
                 id=id,
                 questions=[
                     Question(
