@@ -1,25 +1,33 @@
+from ipaddress import IPv4Address
 import socket
+from .dns_message import ARecord, Message, Question, RecordType, RecordClass
 def main():
-    print("Logs from your program will appear here!")
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     udp_socket.bind(("127.0.0.1", 2053))
+    print("Listening on port 2053...")
     while True:
         try:
-            buf, source = udp_socket.recvfrom(512)
-            rid = b"\x04\xd2"
-            rflags = b"\x80\x00"
-            qdcount = b"\x00\x01"
-            ancount = b"\x00\x01"
-            header = rid + rflags + qdcount + ancount + (b"\x00" * 4)
-            question = b"\x0ccodecrafters\x02io\x00\x00\x01\x00\x01"
-            ttl = b"\x00\x00\x00\x3c"
-            data = b"\x08\x08\x08\x08"
-            data_len = b"\x00\x04"
-            answer = (
-                b"\x0ccodecrafters\x02io\x00\x00\x01\x00\x01" + ttl + data_len + data
+            recvd_bytes, source = udp_socket.recvfrom(512)
+            print("Received request")
+            # id = int.from_bytes(recvd_bytes[:2], "big")
+            id = int.from_bytes(recvd_bytes[:2], "big")
+            reply_message = Message.build_reply(
+                id=1234,
+                id=id,
+                questions=[
+                    Question(
+                        name="codecrafters.io",
+                        type=RecordType.A,
+                        klass=RecordClass.IN,
+                    )
+                ],
+                resource_records=[
+                    ARecord("codecrafters.io", 60, IPv4Address("192.168.1.1"))
+                ],
             )
-            response = header + question + answer
-            udp_socket.sendto(response, source)
+            print(reply_message.to_bytes())
+            print(len(reply_message.to_bytes()))
+            udp_socket.sendto(reply_message.to_bytes(), source)
         except Exception as e:
             print(f"Error receiving data: {e}")
             break
